@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasbih Digital Multi-Mode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            touch-action: pan-y;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 5px;
+        }
+        
+        .mode-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        .carousel {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            width: 300%;
+        }
+        
+        .mode {
+            width: 33.333%;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .mode-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .mode-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .counter-section {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .counter {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            transition: all 0.3s;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .counter.animate {
+            transform: scale(1.1);
+            color: #3498db;
+        }
+        
+        .counter.goal {
+            color: #27ae60;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #ecf0f1;
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .count-btn {
+            flex: 2;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .count-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .count-btn:active {
+            transform: translateY(0);
+        }
+        
+        .count-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .reset-btn {
+            flex: 1;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .history-section {
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .history-section h2 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+        }
+        
+        .clear-history {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .count-value {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.1rem;
+        }
+        
+        .history-date {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+        
+        .history-mode {
+            background-color: #f1f2f6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            margin-left: 5px;
+        }
+        
+        .notification {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+            animation: fadeIn 0.5s;
+        }
+        
+        .goal-notification {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 480px) {
+            .counter {
+                font-size: 4rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .count-btn, .reset-btn {
+                width: 100%;
+            }
+        }
+        
+        .swipe-instruction {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tasbih Digital</h1>
+            <div class="mode-selector">
+                <div class="mode-dot active" data-mode="0"></div>
+                <div class="mode-dot" data-mode="1"></div>
+                <div class="mode-dot" data-mode="2"></div>
+            </div>
+        </div>
+        
+        <div class="carousel">
+            <!-- Mode 1 -->
+            <div class="mode">
+                <h2 class="mode-title">Mode 33</h2>
+                <p class="mode-description">Dzikir dengan kelipatan 33, selesai pada 99</p>
+                
+                <div class="counter-section">
+                    <div id="counter1" class="counter">0</div>
+                    <div class="progress-bar">
+                        <div id="progress1" class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="countButton1" class="count-btn">Tasbih</button>
+                    <button id="resetButton1" class="reset-btn">Reset</button>
+                </div>
+                
+                <div id="notification1" class="notification"></div>
+            </div>
+            
+            <!-- Mode 2 -->
+            <div class="mode">
+                <h2 class="mode-title">Mode 10</h2>
+                <p class="mode-description">Dzikir dengan kelipatan 10, selesai pada 100</p>
+                
+                <div class="counter-section">
+                    <div id="counter2" class="counter">0</div>
+                    <div class="progress-bar">
+                        <div id="progress2" class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="countButton2" class="count-btn">Tasbih</button>
+                    <button id="resetButton2" class="reset-btn">Reset</button>
+                </div>
+                
+                <div id="notification2" class="notification"></div>
+            </div>
+            
+            <!-- Mode 3 -->
+            <div class="mode">
+                <h2 class="mode-title">Mode 100</h2>
+                <p class="mode-description">Dzikir dengan kelipatan 100, selesai pada 1000</p>
+                
+                <div class="counter-section">
+                    <div id="counter3" class="counter">0</div>
+                    <div class="progress-bar">
+                        <div id="progress3" class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="countButton3" class="count-btn">Tasbih</button>
+                    <button id="resetButton3" class="reset-btn">Reset</button>
+                </div>
+                
+                <div id="notification3" class="notification"></div>
+            </div>
+        </div>
+        
+        <div class="swipe-instruction">
+            <i class="fas fa-arrows-alt-h"></i> Geser untuk mengganti mode
+        </div>
+        
+        <div class="history-section">
+            <div class="history-header">
+                <h2>Riwayat</h2>
+                <button id="clearHistory" class="clear-history">
+                    <i class="fas fa-trash"></i> Hapus Riwayat
+                </button>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- Riwayat akan dimuat di sini -->
+            </div>
+        </div>
+    </div>
+
+    <audio id="beepSound" preload="auto">
+        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADwADw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw///////////////////////////////////////////8AAAA8TEFNRTMuMTAwBK8AAAAAAAAAADQgJAUHQQAB9AAADwPAtcE+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sQZBYP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const carousel = document.querySelector('.carousel');
+            const modeDots = document.querySelectorAll('.mode-dot');
+            const beepSound = document.getElementById('beepSound');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+            const historyList = document.getElementById('historyList');
+            
+            // Mode configurations
+            const modes = [
+                {
+                    id: 1,
+                    count: 0,
+                    counterElement: document.getElementById('counter1'),
+                    progressElement: document.getElementById('progress1'),
+                    countButton: document.getElementById('countButton1'),
+                    resetButton: document.getElementById('resetButton1'),
+                    notification: document.getElementById('notification1'),
+                    increment: 1,
+                    goal: 99,
+                    notificationPoints: [33, 66, 99],
+                    description: "Mode 33"
+                },
+                {
+                    id: 2,
+                    count: 0,
+                    counterElement: document.getElementById('counter2'),
+                    progressElement: document.getElementById('progress2'),
+                    countButton: document.getElementById('countButton2'),
+                    resetButton: document.getElementById('resetButton2'),
+                    notification: document.getElementById('notification2'),
+                    increment: 1,
+                    goal: 100,
+                    notificationPoints: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+                    description: "Mode 10"
+                },
+                {
+                    id: 3,
+                    count: 0,
+                    counterElement: document.getElementById('counter3'),
+                    progressElement: document.getElementById('progress3'),
+                    countButton: document.getElementById('countButton3'),
+                    resetButton: document.getElementById('resetButton3'),
+                    notification: document.getElementById('notification3'),
+                    increment: 1,
+                    goal: 1000,
+                    notificationPoints: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                    description: "Mode 100"
+                }
+            ];
+            
+            let currentModeIndex = 0;
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            
+            // Load history from localStorage
+            let history = JSON.parse(localStorage.getItem('tasbihHistory')) || [];
+            
+            // Initialize all modes
+            modes.forEach((mode, index) => {
+                updateModeDisplay(mode);
+                
+                // Add event listeners to buttons
+                mode.countButton.addEventListener('click', () => handleCount(mode));
+                mode.resetButton.addEventListener('click', () => handleReset(mode));
+            });
+            
+            // Update mode display
+            function updateModeDisplay(mode) {
+                mode.counterElement.textContent = mode.count;
+                
+                // Update progress bar
+                const progressPercent = (mode.count / mode.goal) * 100;
+                mode.progressElement.style.width = `${Math.min(progressPercent, 100)}%`;
+                
+                // Check if goal is reached
+                if (mode.count >= mode.goal) {
+                    mode.countButton.disabled = true;
+                    mode.counterElement.classList.add('goal');
+                } else {
+                    mode.countButton.disabled = false;
+                    mode.counterElement.classList.remove('goal');
+                }
+                
+                // Check for notification points
+                if (mode.notificationPoints.includes(mode.count)) {
+                    showNotification(mode, mode.count === mode.goal ? 
+                        `Selamat! Anda telah mencapai target ${mode.goal} dzikir` : 
+                        `Telah mencapai ${mode.count} dzikir`);
+                    playBeep();
+                }
+            }
+            
+            // Handle count
+            function handleCount(mode) {
+                if (mode.count < mode.goal) {
+                    mode.count += mode.increment;
+                    updateModeDisplay(mode);
+                }
+            }
+            
+            // Handle reset
+            function handleReset(mode) {
+                if (mode.count > 0) {
+                    // Add to history
+                    addToHistory(mode.count, mode.description);
+                    
+                    // Reset counter
+                    mode.count = 0;
+                    updateModeDisplay(mode);
+                    
+                    // Show reset notification
+                    showNotification(mode, "Dzikir telah direset", true);
+                }
+            }
+            
+            // Show notification
+            function showNotification(mode, message, isTemp = true) {
+                mode.notification.textContent = message;
+                mode.notification.style.display = 'block';
+                
+                if (mode.count === mode.goal) {
+                    mode.notification.classList.add('goal-notification');
+                } else {
+                    mode.notification.classList.remove('goal-notification');
+                }
+                
+                if (isTemp) {
+                    setTimeout(() => {
+                        mode.notification.style.display = 'none';
+                    }, 2000);
+                }
+            }
+            
+            // Play beep sound
+            function playBeep() {
+                beepSound.currentTime = 0;
+                beepSound.play().catch(e => console.log("Audio play failed:", e));
+            }
+            
+            // Add to history
+            function addToHistory(count, mode) {
+                const now = new Date();
+                const dateString = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                history.unshift({
+                    count: count,
+                    mode: mode,
+                    date: dateString
+                });
+                
+                // Keep only last 10 history items
+                if (history.length > 10) {
+                    history = history.slice(0, 10);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('tasbihHistory', JSON.stringify(history));
+                
+                updateHistoryDisplay();
+            }
+            
+            // Update history display
+            function updateHistoryDisplay() {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="history-item">Tidak ada riwayat</div>';
+                    return;
+                }
+                
+                history.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div>
+                            <span class="count-value">${item.count} dzikir</span>
+                            <span class="history-mode">${item.mode}</span>
+                        </div>
+                        <span class="history-date">${item.date}</span>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // Clear history
+            clearHistoryBtn.addEventListener('click', function() {
+                history = [];
+                localStorage.setItem('tasbihHistory', JSON.stringify(history));
+                updateHistoryDisplay();
+            });
+            
+            // Swipe functionality
+            carousel.addEventListener('touchstart', handleTouchStart, false);
+            carousel.addEventListener('touchmove', handleTouchMove, false);
+            carousel.addEventListener('touchend', handleTouchEnd, false);
+            
+            // Mouse events for testing on desktop
+            carousel.addEventListener('mousedown', handleMouseDown, false);
+            carousel.addEventListener('mousemove', handleMouseMove, false);
+            carousel.addEventListener('mouseup', handleMouseUp, false);
+            carousel.addEventListener('mouseleave', handleMouseUp, false);
+            
+            function handleTouchStart(e) {
+                startX = e.touches[0].clientX;
+                currentX = startX;
+                isDragging = true;
+            }
+            
+            function handleTouchMove(e) {
+                if (!isDragging) return;
+                currentX = e.touches[0].clientX;
+                updateCarouselPosition();
+            }
+            
+            function handleTouchEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                handleSwipe();
+            }
+            
+            function handleMouseDown(e) {
+                startX = e.clientX;
+                currentX = startX;
+                isDragging = true;
+                e.preventDefault();
+            }
+            
+            function handleMouseMove(e) {
+                if (!isDragging) return;
+                currentX = e.clientX;
+                updateCarouselPosition();
+            }
+            
+            function handleMouseUp() {
+                if (!isDragging) return;
+                isDragging = false;
+                handleSwipe();
+            }
+            
+            function updateCarouselPosition() {
+                const diff = currentX - startX;
+                // Move the carousel slightly with the drag for visual feedback
+                carousel.style.transform = `translateX(calc(-${currentModeIndex * 33.333}% + ${diff * 0.5}px))`;
+            }
+            
+            function handleSwipe() {
+                const diff = currentX - startX;
+                const swipeThreshold = 50;
+                
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0 && currentModeIndex > 0) {
+                        // Swipe right - go to previous mode
+                        switchMode(currentModeIndex - 1);
+                    } else if (diff < 0 && currentModeIndex < modes.length - 1) {
+                        // Swipe left - go to next mode
+                        switchMode(currentModeIndex + 1);
+                    } else {
+                        // Return to current mode if swipe not enough to change
+                        resetCarouselPosition();
+                    }
+                } else {
+                    // Return to current mode if swipe not enough to change
+                    resetCarouselPosition();
+                }
+            }
+            
+            function switchMode(newIndex) {
+                currentModeIndex = newIndex;
+                resetCarouselPosition();
+                
+                // Update active dot
+                modeDots.forEach((dot, index) => {
+                    if (index === currentModeIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            function resetCarouselPosition() {
+                carousel.style.transform = `translateX(-${currentModeIndex * 33.333}%)`;
+            }
+            
+            // Initialize
+            resetCarouselPosition();
+            updateHistoryDisplay();
+            
+            // Add click handlers to mode dots
+            modeDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => switchMode(index));
+            });
+        });
+    </script>
+</body>
+</html>
